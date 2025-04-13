@@ -41,7 +41,7 @@ func patchTask(c echo.Context) error {
 	var req TaskRequest
 	id := c.Param("id")
 	if err := c.Bind(&req); err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{"error": "invalid request"})
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "not found task"})
 	}
 	for i, task := range tasks {
 		if task.ID == id {
@@ -73,7 +73,7 @@ func main() {
 	e.GET("/tasks", getTask)
 	e.POST("/tasks", postTask)
 	e.PATCH("/tasks/:id", patchTask)
-	e.PATCH("/tasks/:id", deleteTask)
+	e.DELETE("/tasks/:id", deleteTask)
 
 	e.Start("localhost:8080")
 }
