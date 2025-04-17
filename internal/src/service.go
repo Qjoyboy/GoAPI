@@ -68,7 +68,7 @@ func (s *taskService) UpdateTask(id string, text string) (Task, error) {
 	text, is_done := s.taskValidate(text, isdone)
 
 	task.Text = text
-	task.Is_done = is_done
+	task.IsDone = is_done
 
 	if err := s.repo.UpdateTask(task); err != nil {
 		return Task{}, err

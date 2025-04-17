@@ -1,12 +1,12 @@
 package src
 
 type Task struct {
-	ID      string `gorm:"primaryKey" json:"id"`
-	Text    string `json:"text"`
-	Is_done bool   `json:"is_done"`
+	ID     string `gorm:"primaryKey" json:"id"`
+	Text   string `json:"text"`
+	IsDone bool   `json:"is_done"`
 }
 
 type TaskRequest struct {
-	Text    string `json:"text"`
-	Is_done bool   `json:"is_done"`
+	Text   string `json:"text"`
+	IsDone bool   `json:"is_done"`
 }
