@@ -18,7 +18,7 @@ import (
 type Task struct {
 	Id     *uint   `json:"id,omitempty"`
 	IsDone *bool   `json:"is_done,omitempty"`
-	Task   *string `json:"task,omitempty"`
+	Text   *string `json:"text,omitempty"`
 }
 
 // PostTasksJSONRequestBody defines body for PostTasks for application/json ContentType.

@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"context"
+	"fmt"
+
 	// "fmt"
 	"goapi/internal/src"
 	"goapi/internal/web/tasks"
@@ -27,7 +29,7 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 	for _, tsk := range allTasks {
 		task := tasks.Task{
 			Id:     &tsk.ID,
-			Task:   &tsk.Text,
+			Text:   &tsk.Text,
 			IsDone: &tsk.IsDone,
 		}
 		response = append(response, task)
@@ -35,26 +37,29 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 	return response, nil
 }
 
-func (h *TaskHandler) PostTasks(ctx context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
-
+func (h *TaskHandler) PostTasks(_ context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
 	taskRequest := request.Body
 
-	taskToCreate := src.Task{
-		Text:   *taskRequest.Task,
-		IsDone: *taskRequest.IsDone,
+	// Проверка на nil
+	if taskRequest.Text == nil || *taskRequest.Text == "" {
+		return nil, fmt.Errorf("invalid task: text cannot be empty")
+	}
+	if taskRequest.IsDone == nil {
+		return nil, fmt.Errorf("invalid task: is_done cannot be nil")
 	}
 
-	createdTask, err := h.service.CreateTask(taskToCreate.Text, taskToCreate.IsDone)
+	// Создаем задачу
+	createdTask, err := h.service.CreateTask(*taskRequest.Text, *taskRequest.IsDone)
 	if err != nil {
 		return nil, err
 	}
 
-	response := tasks.PostTasks201JSONResponse{
+	// Возвращаем ответ
+	return tasks.PostTasks201JSONResponse{
 		Id:     &createdTask.ID,
-		Task:   &createdTask.Text,
+		Text:   &createdTask.Text,
 		IsDone: &createdTask.IsDone,
-	}
-	return response, nil
+	}, nil
 }
 
 func (h *TaskHandler) PatchTasksTaskId(ctx context.Context, request tasks.PatchTasksTaskIdRequestObject) (tasks.PatchTasksTaskIdResponseObject, error) {
@@ -65,11 +70,11 @@ func (h *TaskHandler) PatchTasksTaskId(ctx context.Context, request tasks.PatchT
 	}
 
 	// Обновляем текст задачи и статус IsDone
-	taskToUpdate.Text = *request.Body.Task
+	taskToUpdate.Text = *request.Body.Text
 	taskToUpdate.IsDone = *request.Body.IsDone
 
 	// Сохраняем обновленную задачу
-	updatedTask, err := h.service.UpdateTask(taskToUpdate.ID, taskToUpdate.Text)
+	updatedTask, err := h.service.UpdateTask(taskToUpdate.ID, taskToUpdate.Text, taskToUpdate.IsDone)
 	if err != nil {
 		return nil, err
 	}
@@ -77,7 +82,7 @@ func (h *TaskHandler) PatchTasksTaskId(ctx context.Context, request tasks.PatchT
 	// Возвращаем обновленную задачу в ответе
 	response := tasks.PatchTasksTaskId200JSONResponse{
 		Id:     &updatedTask.ID,
-		Task:   &updatedTask.Text,
+		Text:   &updatedTask.Text,
 		IsDone: &updatedTask.IsDone,
 	}
 

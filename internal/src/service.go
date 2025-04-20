@@ -10,7 +10,7 @@ type TaskService interface {
 	CreateTask(text string, is_done bool) (Task, error)
 	GetTasks() ([]Task, error)
 	GetTaskByID(id uint) (Task, error)
-	UpdateTask(id uint, text string) (Task, error)
+	UpdateTask(id uint, text string, is_done bool) (Task, error)
 	DeleteTask(id uint) error
 }
 
@@ -22,22 +22,22 @@ func NewTaskService(r TaskRepository) TaskService {
 	return &taskService{repo: r}
 }
 
-func (s *taskService) taskValidate(text string, is_done bool) (string, bool) {
+func (s *taskService) taskValidate(text string) error {
 	if text == "" {
-		return "", false
+		return fmt.Errorf("text cannot be empty")
 	}
-	return text, is_done
+	return nil
 }
 
 func (s *taskService) CreateTask(text string, is_done bool) (Task, error) {
-	text, isValid := s.taskValidate(text, is_done)
-	if !isValid {
-		return Task{}, fmt.Errorf("invalid task: text cannot be empty")
+	if err := s.taskValidate(text); err != nil {
+		return Task{}, err
 	}
 
 	task := Task{
-		ID:   uint(uuid.New().ID()),
-		Text: text,
+		ID:     uint(uuid.New().ID()),
+		Text:   text,
+		IsDone: is_done,
 	}
 
 	if err := s.repo.CreateTask(task); err != nil {
@@ -58,14 +58,15 @@ func (s *taskService) GetTaskByID(id uint) (Task, error) {
 }
 
 // UpdateTask implements TaskService.
-func (s *taskService) UpdateTask(id uint, text string) (Task, error) {
+func (s *taskService) UpdateTask(id uint, text string, is_done bool) (Task, error) {
+	if err := s.taskValidate(text); err != nil {
+		return Task{}, err
+	}
+
 	task, err := s.repo.GetTaskByID(id)
 	if err != nil {
 		return Task{}, err
 	}
-
-	isdone := false
-	text, is_done := s.taskValidate(text, isdone)
 
 	task.Text = text
 	task.IsDone = is_done

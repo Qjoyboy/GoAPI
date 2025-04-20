@@ -73,7 +73,6 @@ paths:
       responses:
         '204':
           description: Deleted the task
-
 components:
   schemas:
     Task:
@@ -82,7 +81,7 @@ components:
         id:
           type: integer
           format: uint
-        task:
+        text:
           type: string
         is_done:
           type: boolean
