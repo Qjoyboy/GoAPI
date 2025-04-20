@@ -1,7 +1,7 @@
 package src
 
 type Task struct {
-	ID     string `gorm:"primaryKey" json:"id"`
+	ID     uint   `gorm:"primaryKey" json:"id"`
 	Text   string `json:"text"`
 	IsDone bool   `json:"is_done"`
 }

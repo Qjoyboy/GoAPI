@@ -8,17 +8,17 @@ import (
 
 type TaskService interface {
 	CreateTask(text string, is_done bool) (Task, error)
-	GetAllTasks() ([]Task, error)
-	GetTaskByID(id string) (Task, error)
-	UpdateTask(id, text string) (Task, error)
-	DeleteTask(id string) error
+	GetTasks() ([]Task, error)
+	GetTaskByID(id uint) (Task, error)
+	UpdateTask(id uint, text string) (Task, error)
+	DeleteTask(id uint) error
 }
 
 type taskService struct {
 	repo TaskRepository
 }
 
-func NewTaskSerivce(r TaskRepository) TaskService {
+func NewTaskService(r TaskRepository) TaskService {
 	return &taskService{repo: r}
 }
 
@@ -36,7 +36,7 @@ func (s *taskService) CreateTask(text string, is_done bool) (Task, error) {
 	}
 
 	task := Task{
-		ID:   uuid.NewString(),
+		ID:   uint(uuid.New().ID()),
 		Text: text,
 	}
 
@@ -48,17 +48,17 @@ func (s *taskService) CreateTask(text string, is_done bool) (Task, error) {
 }
 
 // GetAllTasks implements TaskService.
-func (s *taskService) GetAllTasks() ([]Task, error) {
-	return s.repo.GetAllTasks()
+func (s *taskService) GetTasks() ([]Task, error) {
+	return s.repo.GetTasks()
 }
 
 // GetTaskByID implements TaskService.
-func (s *taskService) GetTaskByID(id string) (Task, error) {
+func (s *taskService) GetTaskByID(id uint) (Task, error) {
 	return s.repo.GetTaskByID(id)
 }
 
 // UpdateTask implements TaskService.
-func (s *taskService) UpdateTask(id string, text string) (Task, error) {
+func (s *taskService) UpdateTask(id uint, text string) (Task, error) {
 	task, err := s.repo.GetTaskByID(id)
 	if err != nil {
 		return Task{}, err
@@ -78,6 +78,6 @@ func (s *taskService) UpdateTask(id string, text string) (Task, error) {
 }
 
 // DeleteTask implements TaskService.
-func (s *taskService) DeleteTask(id string) error {
+func (s *taskService) DeleteTask(id uint) error {
 	return s.repo.DeleteTask(id)
 }

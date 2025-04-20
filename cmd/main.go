@@ -1,9 +1,10 @@
 package main
 
 import (
-	"GoApi/internal/db"
-	"GoApi/internal/handlers"
-	"GoApi/internal/src"
+	"goapi/internal/db"
+	"goapi/internal/handlers"
+	"goapi/internal/src"
+	"goapi/internal/web/tasks"
 	"log"
 
 	"github.com/labstack/echo/v4"
@@ -19,16 +20,16 @@ func main() {
 	e := echo.New()
 
 	taskRepo := src.NewTaskRepository(database)
-	taskService := src.NewTaskSerivce(taskRepo)
+	taskService := src.NewTaskService(taskRepo)
 	taskHandler := handlers.NewTaskHandler(taskService)
 
 	e.Use(middleware.CORS())
 	e.Use(middleware.Logger())
 
-	e.GET("/tasks", taskHandler.GetTask)
-	e.POST("/tasks", taskHandler.PostTask)
-	e.PATCH("/tasks/:id", taskHandler.PatchTask)
-	e.DELETE("/tasks/:id", taskHandler.DeleteTask)
+	strictHander := tasks.NewStrictHandler(taskHandler, nil)
+	tasks.RegisterHandlers(e, strictHander)
 
-	e.Start("localhost:8080")
+	if err := e.Start(":8080"); err != nil {
+		log.Fatalf("failed to start with err: %v", err)
+	}
 }
