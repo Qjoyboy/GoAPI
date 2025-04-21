@@ -45,7 +45,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       requestBody:
         description: Fields to update
         required: true
@@ -69,7 +69,7 @@ paths:
           in: path
           required: true
           schema:
-            type: integer
+            type: string
       responses:
         '204':
           description: Deleted the task
@@ -79,8 +79,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
-          format: uint
+          type: string
         text:
           type: string
         is_done:

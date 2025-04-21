@@ -40,7 +40,6 @@ func (h *TaskHandler) GetTasks(ctx context.Context, request tasks.GetTasksReques
 func (h *TaskHandler) PostTasks(_ context.Context, request tasks.PostTasksRequestObject) (tasks.PostTasksResponseObject, error) {
 	taskRequest := request.Body
 
-	// Проверка на nil
 	if taskRequest.Text == nil || *taskRequest.Text == "" {
 		return nil, fmt.Errorf("invalid task: text cannot be empty")
 	}
@@ -48,13 +47,11 @@ func (h *TaskHandler) PostTasks(_ context.Context, request tasks.PostTasksReques
 		return nil, fmt.Errorf("invalid task: is_done cannot be nil")
 	}
 
-	// Создаем задачу
 	createdTask, err := h.service.CreateTask(*taskRequest.Text, *taskRequest.IsDone)
 	if err != nil {
 		return nil, err
 	}
 
-	// Возвращаем ответ
 	return tasks.PostTasks201JSONResponse{
 		Id:     &createdTask.ID,
 		Text:   &createdTask.Text,
@@ -63,23 +60,21 @@ func (h *TaskHandler) PostTasks(_ context.Context, request tasks.PostTasksReques
 }
 
 func (h *TaskHandler) PatchTasksTaskId(ctx context.Context, request tasks.PatchTasksTaskIdRequestObject) (tasks.PatchTasksTaskIdResponseObject, error) {
-	// Получаем задачу по ID
-	taskToUpdate, err := h.service.GetTaskByID(*request.Body.Id)
+
+	taskId := request.TaskId
+	taskToUpdate, err := h.service.GetTaskByID(taskId)
 	if err != nil {
 		return nil, err
 	}
 
-	// Обновляем текст задачи и статус IsDone
 	taskToUpdate.Text = *request.Body.Text
 	taskToUpdate.IsDone = *request.Body.IsDone
 
-	// Сохраняем обновленную задачу
 	updatedTask, err := h.service.UpdateTask(taskToUpdate.ID, taskToUpdate.Text, taskToUpdate.IsDone)
 	if err != nil {
 		return nil, err
 	}
 
-	// Возвращаем обновленную задачу в ответе
 	response := tasks.PatchTasksTaskId200JSONResponse{
 		Id:     &updatedTask.ID,
 		Text:   &updatedTask.Text,
@@ -92,7 +87,7 @@ func (h *TaskHandler) PatchTasksTaskId(ctx context.Context, request tasks.PatchT
 func (h *TaskHandler) DeleteTasksTaskId(ctx context.Context, request tasks.DeleteTasksTaskIdRequestObject) (tasks.DeleteTasksTaskIdResponseObject, error) {
 	taskId := request.TaskId
 
-	err := h.service.DeleteTask(uint(taskId))
+	err := h.service.DeleteTask(string(taskId))
 	if err != nil {
 		return nil, err
 	}

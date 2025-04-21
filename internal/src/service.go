@@ -2,16 +2,14 @@ package src
 
 import (
 	"fmt"
-
-	"github.com/google/uuid"
 )
 
 type TaskService interface {
 	CreateTask(text string, is_done bool) (Task, error)
 	GetTasks() ([]Task, error)
-	GetTaskByID(id uint) (Task, error)
-	UpdateTask(id uint, text string, is_done bool) (Task, error)
-	DeleteTask(id uint) error
+	GetTaskByID(id string) (Task, error)
+	UpdateTask(id string, text string, is_done bool) (Task, error)
+	DeleteTask(id string) error
 }
 
 type taskService struct {
@@ -35,12 +33,11 @@ func (s *taskService) CreateTask(text string, is_done bool) (Task, error) {
 	}
 
 	task := Task{
-		ID:     uint(uuid.New().ID()),
 		Text:   text,
 		IsDone: is_done,
 	}
 
-	if err := s.repo.CreateTask(task); err != nil {
+	if err := s.repo.CreateTask(&task); err != nil {
 		return Task{}, err
 	}
 
@@ -53,12 +50,12 @@ func (s *taskService) GetTasks() ([]Task, error) {
 }
 
 // GetTaskByID implements TaskService.
-func (s *taskService) GetTaskByID(id uint) (Task, error) {
+func (s *taskService) GetTaskByID(id string) (Task, error) {
 	return s.repo.GetTaskByID(id)
 }
 
 // UpdateTask implements TaskService.
-func (s *taskService) UpdateTask(id uint, text string, is_done bool) (Task, error) {
+func (s *taskService) UpdateTask(id string, text string, is_done bool) (Task, error) {
 	if err := s.taskValidate(text); err != nil {
 		return Task{}, err
 	}
@@ -79,6 +76,6 @@ func (s *taskService) UpdateTask(id uint, text string, is_done bool) (Task, erro
 }
 
 // DeleteTask implements TaskService.
-func (s *taskService) DeleteTask(id uint) error {
+func (s *taskService) DeleteTask(id string) error {
 	return s.repo.DeleteTask(id)
 }
