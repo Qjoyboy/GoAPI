@@ -3,19 +3,55 @@ package handlers
 import (
 	"context"
 	"fmt"
-
-	// "fmt"
 	"goapi/internal/src"
 	"goapi/internal/web/tasks"
-	// "log"
 )
 
 type TaskHandler struct {
 	service src.TaskService
 }
 
+// GetUsersUserIdTasks implements tasks.StrictServerInterface.
+func (h *TaskHandler) GetUsersUserIdTasks(ctx context.Context, request tasks.GetUsersUserIdTasksRequestObject) (tasks.GetUsersUserIdTasksResponseObject, error) {
+	userId := request.UserId
+	userTasks, err := h.service.GetTasksForUser(userId)
+	if err != nil {
+		return nil, err
+	}
+	response := tasks.GetUsersUserIdTasks200JSONResponse{}
+
+	for _, tsk := range userTasks {
+		task := tasks.Task{
+			Id:     &tsk.ID,
+			Text:   &tsk.Text,
+			IsDone: &tsk.IsDone,
+			UserId: &tsk.UserID,
+		}
+		response = append(response, task)
+	}
+	return response, nil
+}
+
 func NewTaskHandler(s src.TaskService) *TaskHandler {
 	return &TaskHandler{service: s}
+}
+
+// PostTasksUserId implements tasks.StrictServerInterface.
+func (h *TaskHandler) PostTasksUserId(ctx context.Context, request tasks.PostTasksUserIdRequestObject) (tasks.PostTasksUserIdResponseObject, error) {
+	taskRequest := request.Body
+
+	createdTask, err := h.service.CreateTaskByUserId(*taskRequest.Text, *taskRequest.UserId, *taskRequest.IsDone)
+	if err != nil {
+		return nil, err
+	}
+
+	return tasks.PostTasksUserId201JSONResponse{
+		Id:     &createdTask.ID,
+		Text:   &createdTask.Text,
+		IsDone: &createdTask.IsDone,
+		UserId: &createdTask.UserID,
+	}, nil
+
 }
 
 // GetTasks implements tasks.StrictServerInterface.

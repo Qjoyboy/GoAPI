@@ -1,6 +1,8 @@
 package usersrc
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type UserService interface {
 	CreateUser(email, password string) (User, error)
@@ -9,7 +11,6 @@ type UserService interface {
 	UpdateUser(id, email, password string) (User, error)
 	DeleteUser(id string) error
 }
-
 type userService struct {
 	repo UserRepository
 }

@@ -1,6 +1,8 @@
 package usersrc
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+)
 
 type UserRepository interface {
 	CreateUser(u *User) error
@@ -19,7 +21,7 @@ func NewTaskRepository(db *gorm.DB) UserRepository {
 }
 
 func (r *userRepo) CreateUser(u *User) error {
-	return r.db.Create(&u).Error
+	return r.db.Create(u).Error
 }
 
 func (r *userRepo) GetUsers() ([]User, error) {
